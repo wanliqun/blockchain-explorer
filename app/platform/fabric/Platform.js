@@ -19,7 +19,10 @@ const MetricService = require('../../persistence/fabric/MetricService');
 const fabric_const = require('./utils/FabricConst').fabric.const;
 const explorer_error = require('../../common/ExplorerMessage').explorer.error;
 
-const config_path = path.resolve(__dirname, './config.json');
+const config_path = path.resolve(
+  __dirname,
+  '../../../configs/fabric/config.json'
+);
 
 class Platform {
   constructor(persistence, broadcaster) {
@@ -50,8 +53,8 @@ class Platform {
     await this.buildClients(network_configs);
 
     if (
-      this.networks.size == 0
-      && this.networks.get(this.defaultNetwork).size == 0
+      this.networks.size == 0 &&
+      this.networks.get(this.defaultNetwork).size == 0
     ) {
       logger.error(
         '************* There is no client found for Hyperledger fabric platform *************'

@@ -2,10 +2,14 @@
 #    SPDX-License-Identifier: Apache-2.0
 #
 
+/configs
+
 explorer_1/scripts/bower_components/
 explorer_1/webcontent
 
 node_modules
+
+.github
 
 .idea/*
 venv

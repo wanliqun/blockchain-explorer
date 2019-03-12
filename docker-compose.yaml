@@ -1,46 +1,31 @@
-version: '2.1'
-
-volumes:
-  pgdata:
-  credentialstore:
-
-networks:
-  mynetwork.com:
-    external:
-      name: artifacts_default
+version: '3'
 
 services:
-
-  explorerdb.mynetwork.com:
-    image: hyperledger/explorer-db:latest
-    container_name: explorerdb.mynetwork.com
-    hostname: explorerdb.mynetwork.com
-    environment:
-      - DATABASE_DATABASE=fabricexplorer
-      - DATABASE_USERNAME=hppoc
-      - DATABASE_PASSWORD=password
-    volumes:
-      - ./app/persistence/fabric/postgreSQL/db/createdb.sh:/docker-entrypoint-initdb.d/createdb.sh
-      - pgdata:/var/lib/postgresql/data
+  
+  explorer:
+    image: hyperledger/explorer
+    #image: wanliqun/fabric-explorer
+    #environment:
+    #  - DATABASE_HOST=db0.deepchain.network
+    #  - DATABASE_PORT=5432
+    #  - DATABASE_DATABASE=fabricexplorer
+    #  - DATABASE_USERNAME=hppoc
+    #  - DATABASE_PASSWORD=password
+    #volumes:
+    #  - ./configs/notarynet/crypto:/tmp/crypto
+    #  - ./fabric-bin:/fabric-bin
+    #  - ./configs/notarynet/config.json:/opt/explorer/app/platform/fabric/config.json    
     networks:
-      - mynetwork.com
-
-  explorer.mynetwork.com:
-    image: hyperledger/explorer:latest
-    container_name: explorer.mynetwork.com
-    hostname: explorer.mynetwork.com
-    environment:
-      - DATABASE_HOST=explorerdb.mynetwork.com
-      - DATABASE_USERNAME=hppoc
-      - DATABASE_PASSWD=password
-      - ENROLL_ID=hlbeuser
-      - DISCOVERY_AS_LOCALHOST=false
-    volumes:
-      - ./examples/net1/config.json:/opt/explorer/app/platform/fabric/config.json
-      - ./examples/net1/crypto:/tmp/crypto
-      - credentialstore:/opt/tmp
-    command: sh -c "sleep 16&& node /opt/explorer/main.js && tail -f /dev/null"
+      - fabric 
+      - swarm
     ports:
-      - 8080:8080
-    networks:
-      - mynetwork.com
+      - "8080:8080"
+    command: node /opt/explorer/main.js
+    
+networks:
+  default:
+    external:
+      name: fabric-overlay
+  swarm:
+    external:
+      name: swarm-overlay

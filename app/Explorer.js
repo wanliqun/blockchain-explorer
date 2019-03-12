@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
 const compression = require('compression');
 const PlatformBuilder = require('./platform/PlatformBuilder');
-const explorerconfig = require('./explorerconfig.json');
+const explorerconfig = require('../configs/explorerconfig.json');
 const PersistenceFactory = require('./persistence/PersistenceFactory');
 const ExplorerError = require('./common/ExplorerError');
 

@@ -20,7 +20,10 @@ const MetricService = require('../../../persistence/fabric/MetricService');
 const fabric_const = require('../utils/FabricConst').fabric.const;
 const explorer_mess = require('../../../common/ExplorerMessage').explorer;
 
-const config_path = path.resolve(__dirname, '../config.json');
+const config_path = path.resolve(
+  __dirname,
+  '../../../../configs/fabric/config.json'
+);
 
 class SyncPlatform {
   constructor(persistence, sender) {

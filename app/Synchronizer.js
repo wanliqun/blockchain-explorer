@@ -2,7 +2,7 @@
     SPDX-License-Identifier: Apache-2.0
 */
 
-const syncconfig = require('./explorerconfig.json');
+const syncconfig = require('../configs/explorerconfig.json');
 const helper = require('./common/helper');
 const ExplorerError = require('./common/ExplorerError');
 
@@ -46,8 +46,8 @@ class Synchronizer {
     // }
 
     if (
-      !(this.args && this.args.length > 2 && this.args[2] === '1')
-      && syncconfig.sync.type !== explorer_const.SYNC_TYPE_HOST
+      !(this.args && this.args.length > 2 && this.args[2] === '1') &&
+      syncconfig.sync.type !== explorer_const.SYNC_TYPE_HOST
     ) {
       throw new ExplorerError(explorer_error.ERROR_1008);
     }

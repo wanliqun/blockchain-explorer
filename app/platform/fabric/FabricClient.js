@@ -14,7 +14,7 @@ const User = require('fabric-client/lib/User.js');
 const client_utils = require('fabric-client/lib/client-utils.js');
 const channelService = require('./service/channelService.js');
 const FabricUtils = require('./utils/FabricUtils.js');
-const explorer_config = require('../../explorerconfig.json');
+const explorer_config = require('../../../configs/explorerconfig.json');
 const explorer_const = require('../../common/ExplorerConst.js').explorer.const;
 const path = require('path');
 
@@ -48,7 +48,9 @@ class FabricClient {
   async initialize(client_config, persistence) {
     // Loading configuration for fabric-ca if enabled.
     // It might be overriden by environment variables
-    Fabric_Client.addConfigFile(path.join(__dirname, 'config_ca.json'));
+    Fabric_Client.addConfigFile(
+      path.join(__dirname, '../../../configs/fabric/config_ca.json')
+    );
     const asLocalhost =
       String(
         Fabric_Client.getConfigSetting('discovery-as-localhost', 'true')
