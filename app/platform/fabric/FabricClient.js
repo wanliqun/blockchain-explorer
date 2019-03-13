@@ -10,6 +10,7 @@ const ExplorerError = require('../../common/ExplorerError');
 const BlockDecoder = require('fabric-client/lib/BlockDecoder');
 const AdminPeer = require('./AdminPeer');
 const grpc = require('grpc');
+const protoLoader = require('@grpc/proto-loader');
 const User = require('fabric-client/lib/User.js');
 const client_utils = require('fabric-client/lib/client-utils.js');
 const channelService = require('./service/channelService.js');
@@ -21,6 +22,21 @@ const path = require('path');
 const _commonProto = grpc.load(
   `${__dirname}/../../../node_modules/fabric-client/lib/protos/common/common.proto`
 ).common;
+/*
+const options = {                                                                          
+  keepCase: true,                                                               
+  longs: String,                                                  
+  //enums: String,                                       
+  defaults: true,                                       
+  oneofs: true                                          
+};                                                                                          
+const packageDefinition = protoLoader.loadSync(                                            
+  `${__dirname}/../../../node_modules/fabric-client/lib/protos/common/common.proto`,
+  options
+);                                                                
+const _commonProto = grpc.loadPackageDefinition(packageDefinition).common; 
+*/
+
 const Constants = require('fabric-client/lib/Constants.js');
 
 const ROLES = Constants.NetworkConfig.ROLES;
@@ -54,7 +70,7 @@ class FabricClient {
     const asLocalhost =
       String(
         Fabric_Client.getConfigSetting('discovery-as-localhost', 'true')
-      ) === 'true';
+      ) === 'true' && false;
 
     this.client_config = client_config;
 
@@ -458,6 +474,7 @@ class FabricClient {
           }
         }
       }
+
       // creating orderers
       if (discover_results.orderers) {
         for (const msp_id in discover_results.orderers) {
@@ -487,6 +504,7 @@ class FabricClient {
           }
         }
       }
+
       // creating admin peers
       if (discover_results && discover_results.peers_by_org) {
         for (const org_name in discover_results.peers_by_org) {

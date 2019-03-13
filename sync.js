@@ -18,6 +18,7 @@ async function start() {
   console.log('\n');
 }
 
+console.log('Starting synchronizer......')
 start();
 
 // this function is called when you want the server to die gracefully

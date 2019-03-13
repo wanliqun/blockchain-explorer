@@ -24,6 +24,8 @@ class Synchronizer {
   }
 
   async initialize() {
+    logger.debug('Calling Synchronizer::initialize()...');
+
     if (!syncconfig[explorer_const.PERSISTENCE]) {
       throw new ExplorerError(explorer_error.ERROR_1001);
     }
@@ -57,13 +59,17 @@ class Synchronizer {
       syncconfig[syncconfig[explorer_const.PERSISTENCE]]
     );
 
+    logger.debug('Setting up sender for Synchronizer...');
     const sender = new ExplorerSender(syncconfig.sync);
     sender.initialize();
 
+    logger.debug('Setting up SyncPlatform for Synchronizer...');
     this.platform = await SyncBuilder.build(pltfrm, this.persistence, sender);
 
+    logger.debug('Setting up persistence service for Synchronizer...');
     this.platform.setPersistenceService();
 
+    logger.debug('Setting block sync time for SyncPlatform...');
     this.platform.setBlocksSyncTime(syncconfig.sync.blocksSyncTime);
 
     await this.platform.initialize(this.args);

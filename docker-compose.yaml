@@ -3,15 +3,18 @@ version: '3'
 services:
   
   explorer:
-    image: hyperledger/explorer
-    #image: wanliqun/fabric-explorer
+    image: deepchain/nodejs
+    build: ./
+    pid: host
     #environment:
     #  - DATABASE_HOST=db0.deepchain.network
     #  - DATABASE_PORT=5432
     #  - DATABASE_DATABASE=fabricexplorer
     #  - DATABASE_USERNAME=hppoc
     #  - DATABASE_PASSWORD=password
-    #volumes:
+    volumes:
+       - ./:/opt/explorer
+       - /workspace/docker/hyperledger/notary-fabric-network/base/crypto-config:/tmp/crypto
     #  - ./configs/notarynet/crypto:/tmp/crypto
     #  - ./fabric-bin:/fabric-bin
     #  - ./configs/notarynet/config.json:/opt/explorer/app/platform/fabric/config.json    
@@ -19,11 +22,11 @@ services:
       - fabric 
       - swarm
     ports:
-      - "8080:8080"
-    command: node /opt/explorer/main.js
+      - "8088:8080"
+    command: tail -f /dev/null
     
 networks:
-  default:
+  fabric:
     external:
       name: fabric-overlay
   swarm:

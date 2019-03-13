@@ -4,6 +4,7 @@
 
 const fs = require('fs-extra');
 const grpc = require('grpc');
+const protoLoader = require('@grpc/proto-loader');
 const convertHex = require('convert-hex');
 const helper = require('../../../common/helper');
 
@@ -15,9 +16,23 @@ const fabric_const = require('../../../platform/fabric/utils/FabricConst')
 const explorer_error = require('../../../common/ExplorerMessage').explorer
   .error;
 
+/*
 const _transProto = grpc.load(
   `${__dirname}/../../../../node_modules/fabric-client/lib/protos/peer/transaction.proto`
 ).protos;
+*/
+const options = {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true
+};
+const packageDefinition = protoLoader.loadSync(
+  `${__dirname}/../../../../node_modules/fabric-client/lib/protos/peer/transaction.proto`,
+  options    
+);
+const _transProto = grpc.loadPackageDefinition(packageDefinition).protos;
 
 const blocksInProcess = [];
 

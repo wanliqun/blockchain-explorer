@@ -18,12 +18,27 @@ const api = require('fabric-client/lib/api.js');
 const utils = require('fabric-client/lib/utils.js');
 const Remote = require('fabric-client/lib/Remote');
 const grpc = require('grpc');
+const protoLoader = require('@grpc/proto-loader');
 const util = require('util');
 const appRoot = require('app-root-path');
 
+/*
 const _serviceProto = grpc.load(
   `${appRoot}/node_modules/fabric-client/lib/protos/peer/admin.proto`
 ).protos;
+*/
+const options = {                                                                          
+  keepCase: true,                                                               
+  longs: String,                                                  
+  enums: String,                                       
+  defaults: true,                                       
+  oneofs: true                                          
+};                                                                                          
+const packageDefinition = protoLoader.loadSync(                                            
+  `${appRoot}/node_modules/fabric-client/lib/protos/peer/admin.proto`,
+  options                                                                                 
+);                                                                
+const _serviceProto = grpc.loadPackageDefinition(packageDefinition).protos; 
 
 const logger = utils.getLogger('Admin.js');
 

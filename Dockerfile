@@ -12,11 +12,11 @@ ENV DEFAULT_WORKDIR /opt
 ENV EXPLORER_APP_PATH $DEFAULT_WORKDIR/explorer
 
 # database configuration
-ENV DATABASE_HOST 127.0.0.1
-ENV DATABASE_PORT 5432
-ENV DATABASE_NAME deepchain_explorer
-ENV DATABASE_USERNAME deepchain
-ENV DATABASE_PASSWD deepchain@019
+# ENV DATABASE_HOST 127.0.0.1
+# ENV DATABASE_PORT 5432
+# ENV DATABASE_NAME deepchain_explorer
+# ENV DATABASE_USERNAME deepchain
+# ENV DATABASE_PASSWD deepchain@019
 
 ENV STARTUP_SCRIPT /opt
 
@@ -29,6 +29,7 @@ COPY . $EXPLORER_APP_PATH
 # install required dependencies by NPM packages:
 # current dependencies are: python, make, g++
 
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk add --no-cache --virtual npm-deps python make g++ && \
     python -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
@@ -39,13 +40,14 @@ RUN apk add --no-cache --virtual npm-deps python make g++ && \
 RUN cd $EXPLORER_APP_PATH && npm install && npm build
 
 # build explorer app
-RUN cd $EXPLORER_APP_PATH && cd client && npm install && yarn build
+# RUN cd $EXPLORER_APP_PATH && cd client && npm install && yarn build
 
 # remove installed packages to free space
-RUN apk del npm-deps
+# RUN apk del npm-deps
 
 # expose default ports
 EXPOSE 8080
 
 # run blockchain explorer main app
-CMD node $EXPLORER_APP_PATH/main.js && tail -f /dev/null
+# CMD node $EXPLORER_APP_PATH/main.js && tail -f /dev/null
+CMD tail -f /dev/null

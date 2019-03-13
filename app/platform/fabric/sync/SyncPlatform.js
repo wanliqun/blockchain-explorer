@@ -89,6 +89,7 @@ class SyncPlatform {
 
     this.client_configs = await FabricUtils.setOrgEnrolmentPath(client_configs);
 
+    logger.debug('Creating fabric client...');
     this.client = await FabricUtils.createFabricClient(
       this.client_configs,
       this.client_name
@@ -148,7 +149,8 @@ class SyncPlatform {
       const time = parseInt(blocksSyncTime, 10);
       if (!isNaN(time)) {
         // this.blocksSyncTime = 1 * 10 * 1000;
-        this.blocksSyncTime = time * 60 * 1000;
+        // this.blocksSyncTime = time * 60 * 1000;
+	this.blocksSyncTime = time * 1000; // second as unit
       }
     }
   }
