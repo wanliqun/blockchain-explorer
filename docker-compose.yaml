@@ -5,7 +5,7 @@ services:
   explorer:
     image: deepchain/nodejs
     build: ./
-    pid: host
+    #pid: host
     #environment:
     #  - DATABASE_HOST=db0.deepchain.network
     #  - DATABASE_PORT=5432

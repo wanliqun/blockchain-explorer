@@ -9,16 +9,15 @@ const args = process.argv.slice(2);
 let synchronizer;
 
 async function start() {
+  console.log("Start synchronizer")
+
   logger.debug('Start synchronizer');
   synchronizer = new Synchronizer(args);
   await synchronizer.initialize();
 
-  console.log('\n');
-  console.log(`Synchronizer pid is ${process.pid}`);
-  console.log('\n');
+  console.log(`Synchronizer start ok, pid is ${process.pid}`);
 }
 
-console.log('Starting synchronizer......')
 start();
 
 // this function is called when you want the server to die gracefully

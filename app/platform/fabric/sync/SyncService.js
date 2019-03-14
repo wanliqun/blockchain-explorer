@@ -284,7 +284,9 @@ class SyncServices {
     const channel_name = channel.getName();
 
     const synch_key = `${client_name}_${channel_name}`;
+    console.log("Start to synchronize blocks with sync_key:" + synch_key);
     if (this.synchInProcess.includes(synch_key)) {
+      console.log( `Block synch is already in process for >> ${client_name}_${channel_name}, skip now.`);
       logger.info(
         `Block synch in process for >> ${client_name}_${channel_name}`
       );
@@ -304,7 +306,8 @@ class SyncServices {
       .getMetricService()
       .findMissingBlockNumber(channel_genesis_hash, blockHeight);
 
-    if (results) {
+    if (results && results.length > 0) {
+      console.log("Missing blocks found: " + JSON.stringify(results))
       for (const result of results) {
         // get block by number
         const block = await client
@@ -325,6 +328,8 @@ class SyncServices {
   }
 
   async processBlockEvent(client, block) {
+    console.log("Start to process block data")    
+
     const _self = this;
     // get the first transaction
     const first_tx = block.data.data[0];
@@ -334,6 +339,7 @@ class SyncServices {
     const blockPro_key = `${channel_name}_${block.header.number}`;
 
     if (blocksInProcess.includes(blockPro_key)) {
+      console.log('Block is already in processing, skip now.');
       return 'Block already in processing';
     }
     blocksInProcess.push(blockPro_key);
@@ -342,6 +348,8 @@ class SyncServices {
     let channel_genesis_hash = client.getChannelGenHash(channel_name);
     // checking block is channel CONFIG block
     if (!channel_genesis_hash) {
+      console.log("Handle channel genesis config block");
+
       // get discovery and insert channel details to db and create new channel object in client context
       setTimeout(
         async (client, channel_name, block) => {
@@ -378,6 +386,8 @@ class SyncServices {
     } else if (
       header.channel_header.typeString === fabric_const.BLOCK_TYPE_CONFIG
     ) {
+      console.log("Handle channel config block");
+
       setTimeout(
         async (client, channel_name, channel_genesis_hash) => {
           // get discovery and insert new peer, orders details to db
@@ -507,12 +517,12 @@ class SyncServices {
         const write_set = JSON.stringify(writeSet, null, 2);
 
         if (typeof read_set === 'string' || read_set instanceof String) {
-          console.log('read_set length', read_set.length);
+          console.log('tx#', i, 'read_set length >>>>>>>>> :', read_set.length);
           const bytes = Buffer.byteLength(write_set, 'utf8');
           const kb = (bytes + 512) / 1024;
           const mb = (kb + 512) / 1024;
           const size = `${mb} MB`;
-          console.log('write_set size >>>>>>>>> : ', size);
+          console.log('tx#', i, 'write_set size >>>>>>>>> : ', size);
         }
 
         const chaincode_id = String.fromCharCode.apply(null, chaincodeID);
@@ -522,6 +532,8 @@ class SyncServices {
             fabric_const.BLOCK_TYPE_ENDORSER_TRANSACTION &&
           chaincode === fabric_const.CHAINCODE_LSCC
         ) {
+          console.log("Handle channel chaincode");
+
           setTimeout(
             async (client, channel_name, channel_genesis_hash) => {
               const channel = client.hfc_client.getChannel(channel_name);
@@ -572,11 +584,13 @@ class SyncServices {
         };
 
         // insert transaction
+        logger.debug("Insert trx#%d data to database <<<<<< %j", i, transaction_row)
         const res = await this.persistence
           .getCrudService()
           .saveTransaction(transaction_row);
       }
       // insert block
+      logger.debug("Insert block data to database <<<<<< %j", block_row) 
       const status = await this.persistence
         .getCrudService()
         .saveBlock(block_row);
@@ -606,6 +620,8 @@ class SyncServices {
     }
     const index = blocksInProcess.indexOf(blockPro_key);
     blocksInProcess.splice(index, 1);
+    
+    console.log("Done block data process!")
   }
 
   getCurrentChannel() {}

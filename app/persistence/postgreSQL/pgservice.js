@@ -33,7 +33,7 @@ class pgservice {
       this.pgconfig.passwd
     }@${this.pgconfig.host}:${this.pgconfig.port}/${this.pgconfig.database}`;
 
-    console.log(this.connectionString);
+    //console.log(this.connectionString);
 
     this.client = new Client({
       connectionString: this.connectionString

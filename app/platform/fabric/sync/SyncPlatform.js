@@ -39,16 +39,19 @@ class SyncPlatform {
   }
 
   async initialize(args) {
+    console.log(`Start SyncPlatform initialization...`);    
+
     const _self = this;
 
     logger.debug(
-      '******* Initialization started for child client process %s ******',
+      '******* SyncPlatform Initialization started for child client process %s ******',
       this.client_name
     );
 
     setTimeout(() => {
+      console.log("\n" + new Date().toISOString() + ": Timer ticks to kick off the SyncPlatform initialization")
       this.initialize(args);
-    }, 60000);
+    }, 15 * 60 * 1000); // SynPlatform reinitialization for every 15 minutes.
 
     // loading the config.json
     const all_config = JSON.parse(fs.readFileSync(config_path, 'utf8'));
@@ -72,7 +75,7 @@ class SyncPlatform {
     }
 
     console.log(
-      `\n${explorer_mess.message.MESSAGE_1002}`,
+      `${explorer_mess.message.MESSAGE_1002}`,
       this.network_name,
       this.client_name
     );
@@ -108,18 +111,21 @@ class SyncPlatform {
 
     if (peerStatus.status) {
       // updating the client network and other details to DB
+      console.log("Updating the client network and other details to DB...")
       const res = await this.syncService.synchNetworkConfigToDB(this.client);
       if (!res) {
         return;
       }
 
       // start event
+      console.log("Start eventhub listenning...")
       this.eventHub = new FabricEvent(this.client, this.syncService);
       await this.eventHub.initialize();
 
       // setting interval for validating any missing block from the current client ledger
       // set blocksSyncTime property in platform config.json in minutes
       setInterval(() => {
+        console.log(new Date().toISOString() + ": Timer ticks to validating any missing block from the current client ledger ")
         _self.isChannelEventHubConnected();
       }, this.blocksSyncTime);
       logger.debug(
@@ -136,9 +142,11 @@ class SyncPlatform {
       // validate channel event is connected
       const status = this.eventHub.isChannelEventHubConnected(channel_name);
       if (status) {
+        console.log("Channel client is connected, synchronizing channel blocks...");
         await this.syncService.synchBlocks(this.client, channel);
       } else {
         // channel client is not connected then it will reconnect
+        console.log("Channel client is not connected, reconnecting now..."); 
         this.eventHub.connectChannelEventHub(channel_name);
       }
     }
@@ -150,7 +158,7 @@ class SyncPlatform {
       if (!isNaN(time)) {
         // this.blocksSyncTime = 1 * 10 * 1000;
         // this.blocksSyncTime = time * 60 * 1000;
-	this.blocksSyncTime = time * 1000; // second as unit
+        this.blocksSyncTime = time * 1000; // second as unit
       }
     }
   }
