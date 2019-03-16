@@ -15,6 +15,7 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.4.0",
     "ajv": "^5.5.2",
+    "apache-rocketmq": "^1.0.0-rc1",
     "app-root-path": "^2.0.1",
     "asn1.js": "^5.0.1",
     "body-parser": "^1.17.2",

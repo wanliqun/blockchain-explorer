@@ -1,9 +1,4 @@
-# Copyright Tecnalia Research & Innovation (https://www.tecnalia.com)
-# Copyright Tecnalia Blockchain LAB
-#
-# SPDX-License-Identifier: Apache-2.0
-
-FROM node:8.15.0-alpine
+FROM ubuntu:14.04
 
 # default values pf environment variables
 # that are used inside container
@@ -26,28 +21,27 @@ WORKDIR $DEFAULT_WORKDIR
 # copy external data to container
 COPY . $EXPLORER_APP_PATH
 
+RUN echo "\
+deb http://mirrors.163.com/ubuntu/ trusty main restricted universe multiverse \n\
+deb http://mirrors.163.com/ubuntu/ trusty-security main restricted universe multiverse \n\
+deb http://mirrors.163.com/ubuntu/ trusty-updates main restricted universe multiverse \n\
+deb http://mirrors.163.com/ubuntu/ trusty-proposed main restricted universe multiverse \n\
+deb http://mirrors.163.com/ubuntu/ trusty-backports main restricted universe multiverse \n\
+deb-src http://mirrors.163.com/ubuntu/ trusty main restricted universe multiverse \n\
+deb-src http://mirrors.163.com/ubuntu/ trusty-security main restricted universe multiverse \n\
+deb-src http://mirrors.163.com/ubuntu/ trusty-updates main restricted universe multiverse \n\
+deb-src http://mirrors.163.com/ubuntu/ trusty-proposed main restricted universe multiverse \n\
+deb-src http://mirrors.163.com/ubuntu/ trusty-backports main restricted universe multiverse \
+" > /etc/apt/sources.list
+
 # install required dependencies by NPM packages:
 # current dependencies are: python, make, g++
-
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
-RUN apk add --no-cache --virtual npm-deps python make g++ && \
-    python -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip install --upgrade pip setuptools && \
-	rm -r /root/.cache
+RUN apt-get -y update && apt-get install -y wget vim curl git gcc g++ make python
+RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+RUN sudo apt-get install -y nodejs
 
 # install NPM dependencies
 RUN cd $EXPLORER_APP_PATH && npm install && npm build
 
-# build explorer app
-# RUN cd $EXPLORER_APP_PATH && cd client && npm install && yarn build
-
-# remove installed packages to free space
-# RUN apk del npm-deps
-
-# expose default ports
-EXPOSE 8080
-
-# run blockchain explorer main app
-# CMD node $EXPLORER_APP_PATH/main.js && tail -f /dev/null
-CMD tail -f /dev/null
+# run blockchain synchronizer
+CMD node $EXPLORER_APP_PATH/sync.js && tail -f /dev/null

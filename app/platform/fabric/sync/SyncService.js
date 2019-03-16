@@ -16,11 +16,11 @@ const fabric_const = require('../../../platform/fabric/utils/FabricConst')
 const explorer_error = require('../../../common/ExplorerMessage').explorer
   .error;
 
-/*
 const _transProto = grpc.load(
   `${__dirname}/../../../../node_modules/fabric-client/lib/protos/peer/transaction.proto`
 ).protos;
-*/
+
+/*
 const options = {
   keepCase: true,
   longs: String,
@@ -33,6 +33,7 @@ const packageDefinition = protoLoader.loadSync(
   options    
 );
 const _transProto = grpc.loadPackageDefinition(packageDefinition).protos;
+*/
 
 const blocksInProcess = [];
 
@@ -112,6 +113,7 @@ class SyncServices {
       } else {
         const notify = {
           notify_type: fabric_const.NOTITY_TYPE_EXISTCHANNEL,
+
           network_name: this.platform.network_name,
           client_name: client.client_name,
           channel_name
@@ -284,9 +286,11 @@ class SyncServices {
     const channel_name = channel.getName();
 
     const synch_key = `${client_name}_${channel_name}`;
-    console.log("Start to synchronize blocks with sync_key:" + synch_key);
+    console.log('Start to synchronize blocks with sync_key:' + synch_key);
     if (this.synchInProcess.includes(synch_key)) {
-      console.log( `Block synch is already in process for >> ${client_name}_${channel_name}, skip now.`);
+      console.log(
+        `Block synch is already in process for >> ${client_name}_${channel_name}, skip now.`
+      );
       logger.info(
         `Block synch in process for >> ${client_name}_${channel_name}`
       );
@@ -307,7 +311,7 @@ class SyncServices {
       .findMissingBlockNumber(channel_genesis_hash, blockHeight);
 
     if (results && results.length > 0) {
-      console.log("Missing blocks found: " + JSON.stringify(results))
+      console.log('Missing blocks found: ' + JSON.stringify(results));
       for (const result of results) {
         // get block by number
         const block = await client
@@ -328,7 +332,7 @@ class SyncServices {
   }
 
   async processBlockEvent(client, block) {
-    console.log("Start to process block data")    
+    console.log('Start to process block data');
 
     const _self = this;
     // get the first transaction
@@ -348,7 +352,7 @@ class SyncServices {
     let channel_genesis_hash = client.getChannelGenHash(channel_name);
     // checking block is channel CONFIG block
     if (!channel_genesis_hash) {
-      console.log("Handle channel genesis config block");
+      console.log('Handle channel genesis config block');
 
       // get discovery and insert channel details to db and create new channel object in client context
       setTimeout(
@@ -386,7 +390,7 @@ class SyncServices {
     } else if (
       header.channel_header.typeString === fabric_const.BLOCK_TYPE_CONFIG
     ) {
-      console.log("Handle channel config block");
+      console.log('Handle channel config block');
 
       setTimeout(
         async (client, channel_name, channel_genesis_hash) => {
@@ -444,10 +448,12 @@ class SyncServices {
         let chaincodeID;
         let status;
         let mspId = [];
+        let mt_valid_code;
         if (txid != undefined && txid != '') {
           const validation_codes =
             block.metadata.metadata[block.metadata.metadata.length - 1];
           const val_code = validation_codes[i];
+          mt_valid_code = val_code;
           validation_code = convertValidationCode(val_code);
         }
         let envelope_signature = txObj.signature;
@@ -532,7 +538,7 @@ class SyncServices {
             fabric_const.BLOCK_TYPE_ENDORSER_TRANSACTION &&
           chaincode === fabric_const.CHAINCODE_LSCC
         ) {
-          console.log("Handle channel chaincode");
+          console.log('Handle channel chaincode');
 
           setTimeout(
             async (client, channel_name, channel_genesis_hash) => {
@@ -584,13 +590,30 @@ class SyncServices {
         };
 
         // insert transaction
-        logger.debug("Insert trx#%d data to database <<<<<< %j", i, transaction_row)
+        logger.debug(
+          'Insert trx#%d data to database <<<<<< %j',
+          i,
+          transaction_row
+        );
         const res = await this.persistence
           .getCrudService()
           .saveTransaction(transaction_row);
+        if (res) {
+          const txNotify = {
+            notify_type: fabric_const.NOTITY_TYPE_TRANSACTION,
+            txobj: {
+              txhash: transaction_row.txhash,
+              validation_status: transaction_row.validation_code,
+              validation_code: mt_valid_code
+            }
+          };
+
+          console.log('Notify transaction status...');
+          _self.platform.send(txNotify);
+        }
       }
       // insert block
-      logger.debug("Insert block data to database <<<<<< %j", block_row) 
+      logger.debug('Insert block data to database <<<<<< %j', block_row);
       const status = await this.persistence
         .getCrudService()
         .saveBlock(block_row);
@@ -620,8 +643,8 @@ class SyncServices {
     }
     const index = blocksInProcess.indexOf(blockPro_key);
     blocksInProcess.splice(index, 1);
-    
-    console.log("Done block data process!")
+
+    console.log('Done block data process!');
   }
 
   getCurrentChannel() {}

@@ -4,6 +4,10 @@
 
 const path = require('path');
 const fs = require('fs-extra');
+const dns = require('dns');
+const net = require('net');
+const util = require('util');
+const dnsResolveAsync = util.promisify(dns.resolve);
 
 const SyncService = require('../sync/SyncService');
 const FabricUtils = require('../utils/FabricUtils');
@@ -19,6 +23,9 @@ const MetricService = require('../../../persistence/fabric/MetricService');
 
 const fabric_const = require('../utils/FabricConst').fabric.const;
 const explorer_mess = require('../../../common/ExplorerMessage').explorer;
+
+const { Producer, PushConsumer } = require('apache-rocketmq');
+const rmqconfig = require('../../../../configs/rocketmq.json');
 
 const config_path = path.resolve(
   __dirname,
@@ -36,10 +43,11 @@ class SyncPlatform {
     this.syncService = new SyncService(this, this.persistence);
     this.blocksSyncTime = 60000;
     this.client_configs;
+    this.dnsCache = {};
   }
 
   async initialize(args) {
-    console.log(`Start SyncPlatform initialization...`);    
+    console.log(`Start SyncPlatform initialization...`);
 
     const _self = this;
 
@@ -49,7 +57,11 @@ class SyncPlatform {
     );
 
     setTimeout(() => {
-      console.log("\n" + new Date().toISOString() + ": Timer ticks to kick off the SyncPlatform initialization")
+      console.log(
+        '\n' +
+          new Date().toISOString() +
+          ': Timer ticks to kick off the SyncPlatform initialization'
+      );
       this.initialize(args);
     }, 15 * 60 * 1000); // SynPlatform reinitialization for every 15 minutes.
 
@@ -111,21 +123,24 @@ class SyncPlatform {
 
     if (peerStatus.status) {
       // updating the client network and other details to DB
-      console.log("Updating the client network and other details to DB...")
+      console.log('Updating the client network and other details to DB...');
       const res = await this.syncService.synchNetworkConfigToDB(this.client);
       if (!res) {
         return;
       }
 
       // start event
-      console.log("Start eventhub listenning...")
+      console.log('Start eventhub listenning...');
       this.eventHub = new FabricEvent(this.client, this.syncService);
       await this.eventHub.initialize();
 
       // setting interval for validating any missing block from the current client ledger
       // set blocksSyncTime property in platform config.json in minutes
       setInterval(() => {
-        console.log(new Date().toISOString() + ": Timer ticks to validating any missing block from the current client ledger ")
+        console.log(
+          new Date().toISOString() +
+            ': Timer ticks to validating any missing block from the current client ledger '
+        );
         _self.isChannelEventHubConnected();
       }, this.blocksSyncTime);
       logger.debug(
@@ -142,11 +157,13 @@ class SyncPlatform {
       // validate channel event is connected
       const status = this.eventHub.isChannelEventHubConnected(channel_name);
       if (status) {
-        console.log("Channel client is connected, synchronizing channel blocks...");
+        console.log(
+          'Channel client is connected, synchronizing channel blocks...'
+        );
         await this.syncService.synchBlocks(this.client, channel);
       } else {
         // channel client is not connected then it will reconnect
-        console.log("Channel client is not connected, reconnecting now..."); 
+        console.log('Channel client is not connected, reconnecting now...');
         this.eventHub.connectChannelEventHub(channel_name);
       }
     }
@@ -173,9 +190,98 @@ class SyncPlatform {
     );
   }
 
+  async resolveEndpoint(endpoint) {
+    console.log('resolving endpoint...', endpoint);
+    let [host, port] = endpoint.split(':');
+
+    if (!net.isIP(host)) {
+      console.log(
+        'host is not a valid ip address',
+        host,
+        ', dns resolving now...'
+      );
+      if (this.dnsCache[host]) {
+        console.log('dns cache matched', this.dnsCache[host]);
+        return [this.dnsCache[host], port].join(':');
+      }
+
+      try {
+        var ips = await dnsResolveAsync(host);
+        this.dnsCache[host] = ips[0];
+        return [ips[0], port].join(':');
+      } catch (error) {
+        throw new Error(error);
+      }
+    }
+
+    return endpoint;
+  }
+
+  async sendRmqTxMessage(txobj) {
+    console.log(
+      'Produce Rocketmq message for transaction with hash',
+      txobj.txhash
+    );
+
+    try {
+      const instname = Math.random()
+        .toString(36)
+        .substring(7);
+      const endpoint = await this.resolveEndpoint(rmqconfig.nameServer);
+      console.log('producer instance name:', instname, ' endpoint:', endpoint);
+
+      const producer = new Producer(rmqconfig.groupID, instname, {
+        nameServer: endpoint
+      });
+      producer
+        .start()
+        .then(() => {
+          const body = JSON.stringify({
+            txhash: txobj.txhash,
+            valid_status: txobj.validation_status,
+            valid_code: txobj.validation_code
+          });
+
+          console.log('trying to send message:', body);
+          producer.send(
+            rmqconfig.msgTopic, // topic
+            body, // message body
+            { tags: rmqconfig.msgTag }, // tags
+            function(err, result) {
+              // callback
+              if (err) {
+                console.log('Rocketmq producer failed to send.', err);
+              } else {
+                console.log('Rocketmq producer send ok.', result);
+              }
+
+              producer
+                .shutdown()
+                .then(() => {
+                  console.log('producer shutdown ok.');
+                })
+                .catch(err => {
+                  console.log('producer shutdown error:', err);
+                });
+            }
+          );
+        })
+        .catch(err => {
+          console.log('start producer error:', err);
+        });
+    } catch (e) {
+      console.log('Some exception happens:', e);
+    }
+  }
+
   send(notify) {
     if (this.sender) {
       this.sender.send(notify);
+    }
+
+    if (notify.notify_type === fabric_const.NOTITY_TYPE_TRANSACTION) {
+      console.log('A new transaction status update notify received.');
+      this.sendRmqTxMessage(notify.txobj);
     }
   }
 
