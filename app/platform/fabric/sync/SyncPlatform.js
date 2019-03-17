@@ -63,7 +63,7 @@ class SyncPlatform {
           ': Timer ticks to kick off the SyncPlatform initialization'
       );
       this.initialize(args);
-    }, 15 * 60 * 1000); // SynPlatform reinitialization for every 15 minutes.
+    }, 4 * 60 * 60 * 1000); // SynPlatform reinitialization for every 4 hours.
 
     // loading the config.json
     const all_config = JSON.parse(fs.readFileSync(config_path, 'utf8'));
