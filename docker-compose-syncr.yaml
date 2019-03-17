@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  
+  syncr0:
+    image: wanliqun/deepchain_nodejs:1.0
+    volumes:
+       - ./:/opt/explorer
+       - /workspace/docker/hyperledger/notary-fabric-network/base/crypto-config:/tmp/crypto
+    working_dir: /opt/explorer 
+    command: bash -c "npm install && npm build && node sync.js"
+    networks:
+      - fabric
+      - swarm
+    deploy:
+      placement:
+        constraints: [node.labels.node_id == 2]
+    
+networks:
+  fabric:
+    external:
+      name: fabric-overlay
+  swarm:
+    external:
+      name: swarm-overlay
