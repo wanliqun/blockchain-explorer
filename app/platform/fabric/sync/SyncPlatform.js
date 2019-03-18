@@ -56,6 +56,7 @@ class SyncPlatform {
       this.client_name
     );
 
+    /*
     setTimeout(() => {
       console.log(
         '\n' +
@@ -64,6 +65,7 @@ class SyncPlatform {
       );
       this.initialize(args);
     }, 4 * 60 * 60 * 1000); // SynPlatform reinitialization for every 4 hours.
+*/
 
     // loading the config.json
     const all_config = JSON.parse(fs.readFileSync(config_path, 'utf8'));
