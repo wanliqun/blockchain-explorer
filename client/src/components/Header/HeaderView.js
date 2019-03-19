@@ -6,9 +6,7 @@ import React, { Component } from 'react';
 import compose from 'recompose/compose';
 import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
-import {
-  Nav, Navbar, NavbarBrand, NavbarToggler, Collapse,
-} from 'reactstrap';
+import { Nav, Navbar, NavbarBrand, NavbarToggler, Collapse } from 'reactstrap';
 import { HashRouter as Router, NavLink } from 'react-router-dom';
 import Switch from '@material-ui/core/Switch';
 import FontAwesome from 'react-fontawesome';
@@ -19,7 +17,7 @@ import Dialog from '@material-ui/core/Dialog';
 import Loader from 'react-loader-spinner';
 import Select from '../Styled/Select';
 import NotificationsPanel from '../Panels/NotificationsPanel';
-import Logo from '../../static/images/Explorer_Logo.svg';
+import Logo from '../../static/images/DeepChain.svg';
 import AdminPanel from '../Panels/AdminPanel';
 import { chartOperations, chartSelectors } from '../../state/redux/charts';
 import { tableOperations, tableSelectors } from '../../state/redux/tables';
@@ -39,7 +37,7 @@ import {
   getTransactionByOrgType,
   getTransactionPerHourType,
   getTransactionPerMinType,
-  refreshType,
+  refreshType
 } from '../types';
 
 const {
@@ -51,7 +49,7 @@ const {
   dashStats,
   changeChannel,
   blockActivity,
-  peerStatus,
+  peerStatus
 } = chartOperations;
 
 const {
@@ -59,30 +57,30 @@ const {
   chaincodeList,
   channels,
   peerList,
-  transactionList,
+  transactionList
 } = tableOperations;
 
 const { currentChannelSelector } = chartSelectors;
 const { channelsSelector } = tableSelectors;
 
-const styles = (theme) => {
+const styles = theme => {
   const { type } = theme.palette;
   const dark = type === 'dark';
   const darkNavbar = dark && {
-    background: 'linear-gradient(to right, rgb(236, 233, 252), #4d4575)',
+    background: 'linear-gradient(to right, rgb(236, 233, 252), #4d4575)'
   };
   return {
     logo: {
-      width: 260,
+      width: 28,
       height: 50,
       '@media (max-width: 1415px) and (min-width: 990px)': {
         width: 200,
-        height: 40,
-      },
+        height: 40
+      }
     },
     navbarHeader: {
       backgroundColor: '#e8e8e8',
-      ...darkNavbar,
+      ...darkNavbar
     },
     tab: {
       color: dark ? '#242036' : '#000000',
@@ -91,28 +89,29 @@ const styles = (theme) => {
       height: 50,
       margin: 10,
       '&:hover': {
-        color: dark ? '#242036' : '#000000',
+        color: dark ? '#242036' : '#000000'
       },
       '@media (max-width: 1415px) and (min-width: 990px)': {
-        fontSize: '0.85rem',
-      },
+        fontSize: '0.85rem'
+      }
     },
     activeTab: {
       color: '#ffffff',
-      backgroundColor: dark ? '#453e68' : '#58c5c2',
+      //backgroundColor: dark ? '#453e68' : '#58c5c2',
+      backgroundColor: dark ? '#453e68' : '#3c8eff',
       height: 60,
       marginTop: 20,
       padding: 10,
       '&:hover': {
-        color: '#ffffff',
+        color: '#ffffff'
       },
       '@media (max-width: 1415px) and (min-width: 990px)': {
-        padding: '8%',
-      },
+        padding: '8%'
+      }
     },
     adminButton: {
       paddingTop: 0,
-      marginTop: 0,
+      marginTop: 0
     },
     themeSwitch: {
       height: 50,
@@ -122,11 +121,11 @@ const styles = (theme) => {
       width: 100,
       paddingTop: 0,
       '@media (max-width: 1415px) and (min-width: 990px)': {
-        display: 'flex',
+        display: 'flex'
       },
       '@media (max-width: 990px)': {
-        marginLeft: 0,
-      },
+        marginLeft: 0
+      }
     },
     bell: {
       color: dark ? 'rgb(139, 143, 148)' : '#5f6164',
@@ -134,44 +133,44 @@ const styles = (theme) => {
       margin: 8,
       float: 'none',
       '&:hover': {
-        color: dark ? '#c1d7f0' : '#24272a',
-      },
+        color: dark ? '#c1d7f0' : '#24272a'
+      }
     },
     channel: {
       width: 200,
       margin: 8,
       float: 'none',
       '@media (max-width: 1415px) and (min-width: 990px)': {
-        width: '9em',
-      },
+        width: '9em'
+      }
     },
     channelLoader: {
       textAlign: 'center',
-      padding: 20,
+      padding: 20
     },
     loader: {
       margin: '0 auto',
-      width: 100,
+      width: 100
     },
     sunIcon: {
       color: dark ? 'rgb(247, 200, 92)' : 'rgb(245, 185, 47)',
       '@media (max-width: 1415px) and (min-width: 990px)': {
-        marginTop: 15,
-      },
+        marginTop: 15
+      }
     },
     moonIcon: {
       color: dark ? '#9cd7f7' : 'rgb(104, 195, 245)',
       '@media (max-width: 1415px) and (min-width: 990px)': {
-        marginTop: 15,
-      },
+        marginTop: 15
+      }
     },
     toggleIcon: {
       color: dark ? '#242136' : '#58c5c2',
       fontSize: '1.75em',
       '&:focus': {
-        outline: 'none',
-      },
-    },
+        outline: 'none'
+      }
+    }
   };
 };
 
@@ -187,7 +186,7 @@ export class HeaderView extends Component {
       notifications: [],
       isLoading: true,
       modalOpen: false,
-      selectedChannel: {},
+      selectedChannel: {}
     };
   }
 
@@ -195,23 +194,23 @@ export class HeaderView extends Component {
     const { channels, currentChannel } = this.props;
     const arr = [];
     let selectedValue = {};
-    channels.forEach((element) => {
+    channels.forEach(element => {
       if (element.channel_genesis_hash === currentChannel) {
         selectedValue = {
           value: element.channel_genesis_hash,
-          label: element.channelname,
+          label: element.channelname
         };
       }
       arr.push({
         value: element.channel_genesis_hash,
-        label: element.channelname,
+        label: element.channelname
       });
     });
 
     this.setState({
       channels: arr,
       isLoading: false,
-      selectedChannel: selectedValue,
+      selectedChannel: selectedValue
     });
 
     this.interVal = setInterval(() => {
@@ -228,33 +227,33 @@ export class HeaderView extends Component {
     const options = [];
     let selectedValue = {};
     if (nextProps.channels.length > 0) {
-      nextProps.channels.forEach((element) => {
+      nextProps.channels.forEach(element => {
         options.push({
           value: element.channel_genesis_hash,
-          label: element.channelname,
+          label: element.channelname
         });
         if (
-          nextProps.currentChannel == null
-          || nextProps.currentChannel === undefined
+          nextProps.currentChannel == null ||
+          nextProps.currentChannel === undefined
         ) {
           if (element.channel_genesis_hash != null) {
             selectedValue = {
               value: element.channel_genesis_hash,
-              label: element.channelname,
+              label: element.channelname
             };
           }
         } else if (element.channel_genesis_hash === nextProps.currentChannel) {
           selectedValue = {
             value: element.channel_genesis_hash,
-            label: element.channelname,
+            label: element.channelname
           };
         }
       });
     }
 
     if (
-      nextProps.currentChannel === null
-      || nextProps.currentChannel === undefined
+      nextProps.currentChannel === null ||
+      nextProps.currentChannel === undefined
     ) {
       getChangeChannel(selectedValue.value);
     }
@@ -262,7 +261,7 @@ export class HeaderView extends Component {
     this.setState({
       channels: options,
       isLoading: false,
-      selectedChannel: selectedValue,
+      selectedChannel: selectedValue
     });
     if (nextProps.currentChannel !== currentChannel) {
       this.syncData(nextProps.currentChannel);
@@ -273,14 +272,14 @@ export class HeaderView extends Component {
     const { isOpen } = this.state;
     if (window.matchMedia('(max-width:992px)').matches) {
       this.setState({
-        isOpen: !isOpen,
+        isOpen: !isOpen
       });
     }
   };
 
   closeToggle = () => this.state.isOpen && this.toggle();
 
-  handleChange = async (selectedChannel) => {
+  handleChange = async selectedChannel => {
     if (this.state.channels.length > 1) {
       const { getChangeChannel } = this.props;
       clearInterval(this.interVal);
@@ -303,7 +302,7 @@ export class HeaderView extends Component {
     this.setState({ modalOpen: false });
   };
 
-  handleDrawOpen = (drawer) => {
+  handleDrawOpen = drawer => {
     switch (drawer) {
       case 'notifyDrawer': {
         this.setState({ notifyDrawer: true });
@@ -320,7 +319,7 @@ export class HeaderView extends Component {
     }
   };
 
-  handleDrawClose = (drawer) => {
+  handleDrawClose = drawer => {
     switch (drawer) {
       case 'notifyDrawer': {
         this.setState({ notifyDrawer: false });
@@ -336,7 +335,7 @@ export class HeaderView extends Component {
     }
   };
 
-  handleThemeChange = (mode) => {
+  handleThemeChange = mode => {
     const { refresh } = this.props;
     refresh(mode === 'dark' ? 'light' : 'dark');
   };
@@ -368,7 +367,7 @@ export class HeaderView extends Component {
       getTransactionList,
       getTransactionPerHour,
       getTransactionPerMin,
-      getBlockActivity,
+      getBlockActivity
     } = this.props;
 
     await Promise.all([
@@ -383,7 +382,7 @@ export class HeaderView extends Component {
       getTransactionByOrg(currentChannel),
       getTransactionList(currentChannel),
       getTransactionPerHour(currentChannel),
-      getTransactionPerMin(currentChannel),
+      getTransactionPerMin(currentChannel)
     ]);
     this.handleClose();
   }
@@ -391,7 +390,8 @@ export class HeaderView extends Component {
   render() {
     const { mode, classes } = this.props;
     const { hostname, port } = window.location;
-	const webSocketProtocol = (window.location.protocol === 'https:' ? 'wss' : 'ws');
+    const webSocketProtocol =
+      window.location.protocol === 'https:' ? 'wss' : 'ws';
     const webSocketUrl = `${webSocketProtocol}://${hostname}:${port}/`;
     const dark = mode === 'dark';
     const {
@@ -402,16 +402,16 @@ export class HeaderView extends Component {
       notifyDrawer,
       adminDrawer,
       modalOpen,
-      notifications,
+      notifications
     } = this.state;
 
     const links = [
-      { to: '/', label: 'DASHBOARD', exact: true },
-      { to: '/network', label: 'NETWORK' },
-      { to: '/blocks', label: 'BLOCKS' },
-      { to: '/transactions', label: 'TRANSACTIONS' },
-      { to: '/chaincodes', label: 'CHAINCODES' },
-      { to: '/channels', label: 'CHANNELS' },
+      { to: '/', label: '仪表盘', exact: true },
+      { to: '/network', label: '网络' },
+      { to: '/blocks', label: '区块' },
+      { to: '/transactions', label: '事务' },
+      { to: '/chaincodes', label: '智能合约' },
+      { to: '/channels', label: '通道' }
     ];
 
     return (
@@ -426,14 +426,19 @@ export class HeaderView extends Component {
         <Router>
           <div>
             <Navbar className={classes.navbarHeader} expand="lg" fixed="top">
-              <NavbarBrand href="/">
+              <NavbarBrand href="/" style={{ 'margin-right': '5px' }}>
                 {' '}
-                <img
-                  src={Logo}
-                  className={classes.logo}
-                  alt="Hyperledger Logo"
-                />
+                <img src={Logo} className={classes.logo} alt="DeepSec Logo" />
               </NavbarBrand>
+              <span
+                style={{
+                  'font-size': '1.8rem',
+                  color: '#d3141b',
+                  'font-weight': 'bold'
+                }}
+              >
+                {'DeepChain Explorer V1.0'}
+              </span>
               <NavbarToggler onClick={this.toggle}>
                 <FontAwesome name="bars" className={classes.toggleIcon} />
               </NavbarToggler>
@@ -469,7 +474,7 @@ export class HeaderView extends Component {
                       options={channels}
                     />
                   </div>
-                  {
+                  {/*
                     <div className={classes.adminButton}>
                       <FontAwesome
                         name="bell"
@@ -479,7 +484,7 @@ export class HeaderView extends Component {
                       />
                       <Badge badgeContent={notifyCount} color="primary" />
                     </div>
-                  }
+                  */}
                   {/*
               //Use when Admin functionality is required
               <div className={classes.adminButton}>
@@ -527,9 +532,7 @@ export class HeaderView extends Component {
               maxWidth="md"
             >
               <div className={classes.channelLoader}>
-                <h4>
-Loading Channel Details
-                </h4>
+                <h4>Loading Channel Details</h4>
                 <Loader
                   type="ThreeDots"
                   color="#005069"
@@ -561,7 +564,7 @@ HeaderView.propTypes = {
   getTransactionByOrg: getTransactionByOrgType.isRequired,
   getTransactionPerHour: getTransactionPerHourType.isRequired,
   getTransactionPerMin: getTransactionPerMinType.isRequired,
-  refresh: refreshType.isRequired,
+  refresh: refreshType.isRequired
 };
 
 const { modeSelector } = themeSelectors;
@@ -572,7 +575,7 @@ export default compose(
     state => ({
       currentChannel: currentChannelSelector(state),
       channels: channelsSelector(state),
-      mode: modeSelector(state),
+      mode: modeSelector(state)
     }),
     {
       getBlockList: blockList,
@@ -588,7 +591,7 @@ export default compose(
       getTransactionByOrg: transactionByOrg,
       getTransactionList: transactionList,
       getTransactionPerHour: transactionPerHour,
-      getTransactionPerMin: transactionPerMin,
-    },
-  ),
+      getTransactionPerMin: transactionPerMin
+    }
+  )
 )(HeaderView);

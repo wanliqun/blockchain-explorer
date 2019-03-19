@@ -10,51 +10,56 @@ import { peerListType } from '../types';
 const Peers = ({ peerList }) => {
   const columnHeaders = [
     {
-      Header: 'Peer Name',
+      Header: '节点名称',
       accessor: 'server_hostname',
-      filterMethod: (filter, rows) => matchSorter(
-        rows,
-        filter.value,
-        { keys: ['server_hostname'] },
-        { threshold: matchSorter.rankings.SIMPLEMATCH },
-      ),
-      filterAll: true,
+      filterMethod: (filter, rows) =>
+        matchSorter(
+          rows,
+          filter.value,
+          { keys: ['server_hostname'] },
+          { threshold: matchSorter.rankings.SIMPLEMATCH }
+        ),
+      filterAll: true
     },
     {
-      Header: 'Request Url',
+      Header: '请求Url',
       accessor: 'requests',
-      filterMethod: (filter, rows) => matchSorter(
-        rows,
-        filter.value,
-        { keys: ['requests'] },
-        { threshold: matchSorter.rankings.SIMPLEMATCH },
-      ),
-      filterAll: true,
+      filterMethod: (filter, rows) =>
+        matchSorter(
+          rows,
+          filter.value,
+          { keys: ['requests'] },
+          { threshold: matchSorter.rankings.SIMPLEMATCH }
+        ),
+      filterAll: true
     },
     {
-      Header: 'Peer Type',
+      Header: '节点类型',
       accessor: 'peer_type',
-      filterMethod: (filter, rows) => matchSorter(
-        rows,
-        filter.value,
-        { keys: ['peer_type'] },
-        { threshold: matchSorter.rankings.SIMPLEMATCH },
-      ),
-      filterAll: true,
+      filterMethod: (filter, rows) =>
+        matchSorter(
+          rows,
+          filter.value,
+          { keys: ['peer_type'] },
+          { threshold: matchSorter.rankings.SIMPLEMATCH }
+        ),
+      filterAll: true
     },
     {
       Header: 'MSPID',
       accessor: 'mspid',
-      filterMethod: (filter, rows) => matchSorter(
-        rows,
-        filter.value,
-        { keys: ['mspid'] },
-        { threshold: matchSorter.rankings.SIMPLEMATCH },
-      ),
-      filterAll: true,
-    },
+      filterMethod: (filter, rows) =>
+        matchSorter(
+          rows,
+          filter.value,
+          { keys: ['mspid'] },
+          { threshold: matchSorter.rankings.SIMPLEMATCH }
+        ),
+      filterAll: true
+    }
+    /*
     {
-      Header: 'Ledger Height',
+      Header: '账本高度',
       columns: [
         {
           Header: 'High',
@@ -91,7 +96,7 @@ const Peers = ({ peerList }) => {
           filterAll: true,
         },
       ],
-    },
+    }, */
   ];
 
   return (
@@ -109,7 +114,7 @@ const Peers = ({ peerList }) => {
 };
 
 Peers.propTypes = {
-  peerList: peerListType.isRequired,
+  peerList: peerListType.isRequired
 };
 
 export default Peers;

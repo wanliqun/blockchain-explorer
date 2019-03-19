@@ -29,11 +29,12 @@ COPY . $EXPLORER_APP_PATH
 # install required dependencies by NPM packages:
 # current dependencies are: python, make, g++
 
-RUN apk add --no-cache --virtual npm-deps python make g++ && \
-    python -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip install --upgrade pip setuptools && \
-	rm -r /root/.cache
+RUN apk add --no-cache --virtual npm-deps python make g++ 
+RUN python -m ensurepip 
+RUN rm -r /usr/lib/python*/ensurepip 
+RUN pip install --upgrade pip setuptools
+RUN rm -r /root/.cache
+RUN apk add --no-cache curl
 
 # install NPM dependencies
 RUN cd $EXPLORER_APP_PATH && npm install && npm build

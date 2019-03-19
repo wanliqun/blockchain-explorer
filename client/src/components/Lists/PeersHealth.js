@@ -11,32 +11,28 @@ import { peerStatusType } from '../types';
 const styles = theme => ({
   table: {
     height: 335,
-    overflowY: 'scroll',
+    overflowY: 'scroll'
   },
   center: {
-    textAlign: 'center',
-  },
+    textAlign: 'center'
+  }
 });
 
 const PeersHealth = ({ peerStatus, classes }) => {
   const columnHeaders = [
     {
-      Header: 'Peer Name',
+      Header: '节点名称',
       accessor: 'server_hostname',
       filterAll: false,
-      className: classes.center,
+      className: classes.center
     },
     {
-      Header: 'Status',
+      Header: '节点状态',
       accessor: 'status',
       filterAll: false,
       className: classes.center,
-      Cell: row => (
-        <Badge color="success">
-          {row.value}
-        </Badge>
-      ),
-    },
+      Cell: row => <Badge color="success">{row.value}</Badge>
+    }
   ];
   return (
     <div>
@@ -52,7 +48,7 @@ const PeersHealth = ({ peerStatus, classes }) => {
 };
 
 PeersHealth.propTypes = {
-  peerStatus: peerStatusType.isRequired,
+  peerStatus: peerStatusType.isRequired
 };
 
 export default withStyles(styles)(PeersHealth);

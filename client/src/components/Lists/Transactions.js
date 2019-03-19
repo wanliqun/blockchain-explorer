@@ -17,23 +17,23 @@ import {
   currentChannelType,
   getTransactionType,
   transactionListType,
-  transactionType,
+  transactionType
 } from '../types';
 
-const styles = (theme) => {
+const styles = theme => {
   const { type } = theme.palette;
   const dark = type === 'dark';
   return {
     hash: {
       '&, & li': {
-        overflow: 'visible !important',
-      },
+        overflow: 'visible !important'
+      }
     },
     partialHash: {
       textAlign: 'center',
       position: 'relative !important',
       '&:hover $lastFullHash': {
-        marginLeft: -400,
+        marginLeft: -400
       },
       '&:hover $fullHash': {
         display: 'block',
@@ -44,30 +44,41 @@ const styles = (theme) => {
         marginLeft: -215,
         borderRadius: 8,
         color: '#ffffff',
-        opacity: dark ? 1 : undefined,
-      },
+        opacity: dark ? 1 : undefined
+      }
     },
     fullHash: {
-      display: 'none',
+      display: 'none'
     },
     lastFullHash: {},
     filter: {
       width: '100%',
       textAlign: 'center',
-      margin: '0px !important',
+      margin: '0px !important'
+    },
+    resetButton: {
+      opacity: 0.8,
+      margin: 'auto',
+      border: 0,
+      width: '100% !important',
+      'margin-bottom': '4px',
+      backgroundColor: dark ? undefined : '#e9585a'
     },
     filterButton: {
       opacity: 0.8,
       margin: 'auto',
+      border: 0,
       width: '100% !important',
       'margin-bottom': '4px',
+      backgroundColor: dark ? undefined : '#ffc401'
     },
     searchButton: {
       opacity: 0.8,
       margin: 'auto',
+      border: 0,
       width: '100% !important',
-      backgroundColor: dark ? undefined : '#086108',
-      'margin-bottom': '4px',
+      backgroundColor: dark ? undefined : '#3c8eff',
+      'margin-bottom': '4px'
     },
     filterElement: {
       textAlign: 'center',
@@ -75,12 +86,12 @@ const styles = (theme) => {
       padding: '0px !important',
       '& > div': {
         width: '100% !important',
-        marginTop: 20,
+        marginTop: 20
       },
       '& .label': {
-        margin: '25px 10px 0px 10px',
-      },
-    },
+        margin: '25px 10px 0px 10px'
+      }
+    }
   };
 };
 
@@ -96,18 +107,18 @@ export class Transactions extends Component {
       filtered: [],
       sorted: [],
       err: false,
-      from: moment().subtract(1, 'days'),
+      from: moment().subtract(1, 'days')
     };
   }
 
   componentDidMount() {
     const { transactionList } = this.props;
     const selection = {};
-    transactionList.forEach((element) => {
+    transactionList.forEach(element => {
       selection[element.blocknum] = false;
     });
     const opts = [];
-    this.props.transactionByOrg.forEach((val) => {
+    this.props.transactionByOrg.forEach(val => {
       opts.push({ label: val.creator_msp_id, value: val.creator_msp_id });
     });
     this.setState({ selection, options: opts });
@@ -115,8 +126,8 @@ export class Transactions extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (
-      this.state.search
-      && nextProps.currentChannel !== this.props.currentChannel
+      this.state.search &&
+      nextProps.currentChannel !== this.props.currentChannel
     ) {
       if (this.interval !== undefined) {
         clearInterval(this.interval);
@@ -134,18 +145,18 @@ export class Transactions extends Component {
 
   handleCustomRender(selected, options) {
     if (selected.length === 0) {
-      return 'Select Orgs';
+      return '选择组织';
     }
     if (selected.length === options.length) {
-      return 'All Orgs Selected';
+      return '已选所有';
     }
 
     return selected.join(',');
   }
 
-  searchTransactionList = async (channel) => {
+  searchTransactionList = async channel => {
     let query = `from=${new Date(this.state.from).toString()}&&to=${new Date(
-      this.state.to,
+      this.state.to
     ).toString()}`;
     for (let i = 0; i < this.state.orgs.length; i++) {
       query += `&&orgs=${this.state.orgs[i]}`;
@@ -157,13 +168,13 @@ export class Transactions extends Component {
     await this.props.getTransactionListSearch(channelhash, query);
   };
 
-  handleDialogOpen = async (tid) => {
+  handleDialogOpen = async tid => {
     const { currentChannel, getTransaction } = this.props;
     await getTransaction(currentChannel, tid);
     this.setState({ dialogOpen: true });
   };
 
-  handleMultiSelect = (value) => {
+  handleMultiSelect = value => {
     this.setState({ orgs: value });
   };
 
@@ -188,7 +199,7 @@ export class Transactions extends Component {
       to: moment(),
       orgs: [],
       err: false,
-      from: moment().subtract(1, 'days'),
+      from: moment().subtract(1, 'days')
     });
   };
 
@@ -202,29 +213,31 @@ export class Transactions extends Component {
     const { classes } = this.props;
     const columnHeaders = [
       {
-        Header: 'Creator',
+        Header: '发起者',
         accessor: 'creator_msp_id',
-        filterMethod: (filter, rows) => matchSorter(
-          rows,
-          filter.value,
-          { keys: ['creator_msp_id'] },
-          { threshold: matchSorter.rankings.SIMPLEMATCH },
-        ),
-        filterAll: true,
+        filterMethod: (filter, rows) =>
+          matchSorter(
+            rows,
+            filter.value,
+            { keys: ['creator_msp_id'] },
+            { threshold: matchSorter.rankings.SIMPLEMATCH }
+          ),
+        filterAll: true
       },
       {
-        Header: 'Channel Name',
+        Header: '通道名称',
         accessor: 'channelname',
-        filterMethod: (filter, rows) => matchSorter(
-          rows,
-          filter.value,
-          { keys: ['channelname'] },
-          { threshold: matchSorter.rankings.SIMPLEMATCH },
-        ),
-        filterAll: true,
+        filterMethod: (filter, rows) =>
+          matchSorter(
+            rows,
+            filter.value,
+            { keys: ['channelname'] },
+            { threshold: matchSorter.rankings.SIMPLEMATCH }
+          ),
+        filterAll: true
       },
       {
-        Header: 'Tx Id',
+        Header: '事务id',
         accessor: 'txhash',
         className: classes.hash,
         Cell: row => (
@@ -237,54 +250,57 @@ export class Transactions extends Component {
             >
               <div className={classes.fullHash} id="showTransactionId">
                 {row.value}
-              </div>
-              {' '}
+              </div>{' '}
               {row.value.slice(0, 6)}
               {!row.value ? '' : '... '}
             </a>
           </span>
         ),
-        filterMethod: (filter, rows) => matchSorter(
-          rows,
-          filter.value,
-          { keys: ['txhash'] },
-          { threshold: matchSorter.rankings.SIMPLEMATCH },
-        ),
-        filterAll: true,
+        filterMethod: (filter, rows) =>
+          matchSorter(
+            rows,
+            filter.value,
+            { keys: ['txhash'] },
+            { threshold: matchSorter.rankings.SIMPLEMATCH }
+          ),
+        filterAll: true
       },
       {
-        Header: 'Type',
+        Header: '事务类型',
         accessor: 'type',
-        filterMethod: (filter, rows) => matchSorter(
-          rows,
-          filter.value,
-          { keys: ['type'] },
-          { threshold: matchSorter.rankings.SIMPLEMATCH },
-        ),
-        filterAll: true,
+        filterMethod: (filter, rows) =>
+          matchSorter(
+            rows,
+            filter.value,
+            { keys: ['type'] },
+            { threshold: matchSorter.rankings.SIMPLEMATCH }
+          ),
+        filterAll: true
       },
       {
-        Header: 'Chaincode',
+        Header: '智能合约',
         accessor: 'chaincodename',
-        filterMethod: (filter, rows) => matchSorter(
-          rows,
-          filter.value,
-          { keys: ['chaincodename'] },
-          { threshold: matchSorter.rankings.SIMPLEMATCH },
-        ),
-        filterAll: true,
+        filterMethod: (filter, rows) =>
+          matchSorter(
+            rows,
+            filter.value,
+            { keys: ['chaincodename'] },
+            { threshold: matchSorter.rankings.SIMPLEMATCH }
+          ),
+        filterAll: true
       },
       {
-        Header: 'Timestamp',
+        Header: '发起时间',
         accessor: 'createdt',
-        filterMethod: (filter, rows) => matchSorter(
-          rows,
-          filter.value,
-          { keys: ['createdt'] },
-          { threshold: matchSorter.rankings.SIMPLEMATCH },
-        ),
-        filterAll: true,
-      },
+        filterMethod: (filter, rows) =>
+          matchSorter(
+            rows,
+            filter.value,
+            { keys: ['createdt'] },
+            { threshold: matchSorter.rankings.SIMPLEMATCH }
+          ),
+        filterAll: true
+      }
     ];
 
     const transactionList = this.state.search
@@ -296,16 +312,14 @@ export class Transactions extends Component {
       <div>
         <div className={`${classes.filter} row searchRow`}>
           <div className={`${classes.filterElement} col-md-3`}>
-            <label className="label">
-From
-            </label>
+            <label className="label">From</label>
             <DatePicker
               id="from"
               selected={this.state.from}
               showTimeSelect
               timeIntervals={5}
               dateFormat="LLL"
-              onChange={(date) => {
+              onChange={date => {
                 if (date > this.state.to) {
                   this.setState({ err: true, from: date });
                 } else {
@@ -315,16 +329,14 @@ From
             />
           </div>
           <div className={`${classes.filterElement} col-md-3`}>
-            <label className="label">
-To
-            </label>
+            <label className="label">To</label>
             <DatePicker
               id="to"
               selected={this.state.to}
               showTimeSelect
               timeIntervals={5}
               dateFormat="LLL"
-              onChange={(date) => {
+              onChange={date => {
                 if (date > this.state.from) {
                   this.setState({ to: date, err: false });
                 } else {
@@ -336,7 +348,7 @@ To
                 {this.state.err && (
                   <span className=" label border-red">
                     {' '}
-                    From date should be less than To date
+                    起始日期不能小于结束日期
                   </span>
                 )}
               </div>
@@ -350,41 +362,38 @@ To
               selected={this.state.orgs}
               options={this.state.options}
               selectAllLabel="All Orgs"
-              onSelectedChanged={(value) => {
+              onSelectedChanged={value => {
                 this.handleMultiSelect(value);
               }}
             />
           </div>
-          <div className="col-md-2">
+          <div className="col-md-1">
             <Button
               className={classes.searchButton}
-              color="success"
               disabled={this.state.err}
               onClick={async () => {
                 await this.handleSearch();
               }}
             >
-              Search
+              搜索
             </Button>
           </div>
           <div className="col-md-1">
             <Button
-              className={classes.filterButton}
-              color="primary"
+              className={classes.resetButton}
               onClick={() => {
                 this.handleClearSearch();
               }}
             >
-              Reset
+              重置
             </Button>
           </div>
-          <div className="col-md-1">
+          <div className="col-md-2">
             <Button
               className={classes.filterButton}
-              color="secondary"
               onClick={() => this.setState({ filtered: [], sorted: [] })}
             >
-              Clear Filter
+              清除滤选条件
             </Button>
           </div>
         </div>
@@ -395,11 +404,11 @@ To
           list
           filterable
           sorted={this.state.sorted}
-          onSortedChange={(sorted) => {
+          onSortedChange={sorted => {
             this.setState({ sorted });
           }}
           filtered={this.state.filtered}
-          onFilteredChange={(filtered) => {
+          onFilteredChange={filtered => {
             this.setState({ filtered });
           }}
           minRows={0}
@@ -427,11 +436,11 @@ Transactions.propTypes = {
   currentChannel: currentChannelType.isRequired,
   getTransaction: getTransactionType.isRequired,
   transaction: transactionType,
-  transactionList: transactionListType.isRequired,
+  transactionList: transactionListType.isRequired
 };
 
 Transactions.defaultProps = {
-  transaction: null,
+  transaction: null
 };
 
 export default withStyles(styles)(Transactions);

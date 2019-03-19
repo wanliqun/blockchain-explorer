@@ -6,17 +6,15 @@ import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import FontAwesome from 'react-fontawesome';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import {
-  Table, Card, CardBody, CardTitle,
-} from 'reactstrap';
+import { Table, Card, CardBody, CardTitle } from 'reactstrap';
 import { blockHashType, onCloseType } from '../types';
 import Modal from '../Styled/Modal';
 
 const styles = theme => ({
   cubeIcon: {
     color: '#ffffff',
-    marginRight: 20,
-  },
+    marginRight: 20
+  }
 });
 
 class BlockView extends Component {
@@ -54,7 +52,7 @@ class BlockView extends Component {
             <Card className={modalClasses.card}>
               <CardTitle className={modalClasses.title}>
                 <FontAwesome name="cube" className={classes.cubeIcon} />
-                Block Details
+                区块详情
                 <button
                   type="button"
                   onClick={this.handleClose}
@@ -67,51 +65,29 @@ class BlockView extends Component {
                 <Table striped hover responsive className="table-striped">
                   <tbody>
                     <tr>
-                      <th>
-Channel name:
-                      </th>
-                      <td>
-                        {blockHash.channelname}
-                      </td>
+                      <th>通道名称:</th>
+                      <td>{blockHash.channelname}</td>
                     </tr>
                     <tr>
-                      <th>
-Block Number
-                      </th>
-                      <td>
-                        {blockHash.blocknum}
-                      </td>
+                      <th>区块号</th>
+                      <td>{blockHash.blocknum}</td>
                     </tr>
                     <tr>
-                      <th>
-Created at
-                      </th>
-                      <td>
-                        {blockHash.createdt}
-                      </td>
+                      <th>创建时间</th>
+                      <td>{blockHash.createdt}</td>
                     </tr>
 
                     <tr>
-                      <th>
-Number of Transactions
-                      </th>
-                      <td>
-                        {blockHash.txcount}
-                      </td>
+                      <th>事务数量</th>
+                      <td>{blockHash.txcount}</td>
                     </tr>
                     <tr>
-                      <th>
-Block Hash
-                      </th>
+                      <th>区块Hash</th>
                       <td>
                         {blockHash.blockhash}
                         <button type="button" className={modalClasses.copyBtn}>
-                          <div className={modalClasses.copy}>
-Copy
-                          </div>
-                          <div className={modalClasses.copied}>
-Copied
-                          </div>
+                          <div className={modalClasses.copy}>Copy</div>
+                          <div className={modalClasses.copied}>Copied</div>
                           <CopyToClipboard text={blockHash.blockhash}>
                             <FontAwesome name="copy" />
                           </CopyToClipboard>
@@ -119,18 +95,12 @@ Copied
                       </td>
                     </tr>
                     <tr>
-                      <th>
-Data Hash
-                      </th>
+                      <th>数据Hash</th>
                       <td>
                         {blockHash.datahash}
                         <button type="button" className={modalClasses.copyBtn}>
-                          <div className={modalClasses.copy}>
-Copy
-                          </div>
-                          <div className={modalClasses.copied}>
-Copied
-                          </div>
+                          <div className={modalClasses.copy}>Copy</div>
+                          <div className={modalClasses.copied}>Copied</div>
                           <CopyToClipboard text={blockHash.datahash}>
                             <FontAwesome name="copy" />
                           </CopyToClipboard>
@@ -138,18 +108,12 @@ Copied
                       </td>
                     </tr>
                     <tr>
-                      <th>
-Prehash
-                      </th>
+                      <th>上一区块hash</th>
                       <td>
                         {blockHash.prehash}
                         <button type="button" className={modalClasses.copyBtn}>
-                          <div className={modalClasses.copy}>
-Copy
-                          </div>
-                          <div className={modalClasses.copied}>
-Copied
-                          </div>
+                          <div className={modalClasses.copy}>Copy</div>
+                          <div className={modalClasses.copied}>Copied</div>
                           <CopyToClipboard text={blockHash.prehash}>
                             <FontAwesome name="copy" />
                           </CopyToClipboard>
@@ -169,7 +133,7 @@ Copied
 
 BlockView.propTypes = {
   blockHash: blockHashType.isRequired,
-  onClose: onCloseType.isRequired,
+  onClose: onCloseType.isRequired
 };
 
 export default withStyles(styles)(BlockView);

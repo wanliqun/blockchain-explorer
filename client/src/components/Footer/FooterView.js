@@ -12,7 +12,8 @@ const styles = theme => {
   const dark = type === 'dark';
   return {
     root: {
-      margin: '2%'
+      margin: '2%',
+      height: '5px'
     },
     footer: {
       backgroundColor: dark ? '#5e558e' : '#e8e8e8',
@@ -30,10 +31,10 @@ const FooterView = ({ classes }) => (
   <div className={classes.root}>
     <div>
       <div className={classes.footer}>
-        {'Hyperledger Explorer Client Version: '}
-        {clientJson.version}
+        {
+          'Copyright © 2018-2019  北京深安未来科技有限公司 - Deepchain区块链浏览器系统 V1.0'
+        }
         &emsp;
-        {'Fabric Compatibility: '} {Version.map(v => v)}
       </div>
     </div>
   </div>
