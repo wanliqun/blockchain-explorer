@@ -14,7 +14,7 @@ services:
       - swarm
     deploy:
       placement:
-        constraints: [node.labels.node_id == 2]
+        constraints: [node.labels.node_id == 1]
     
 networks:
   fabric:

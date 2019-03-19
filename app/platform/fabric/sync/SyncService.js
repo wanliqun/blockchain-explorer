@@ -352,7 +352,7 @@ class SyncServices {
     let channel_genesis_hash = client.getChannelGenHash(channel_name);
     // checking block is channel CONFIG block
     if (!channel_genesis_hash) {
-      console.log('Handle channel genesis config block');
+      console.log('>>>> Handle channel genesis config block <<<<');
 
       // get discovery and insert channel details to db and create new channel object in client context
       setTimeout(
@@ -390,7 +390,7 @@ class SyncServices {
     } else if (
       header.channel_header.typeString === fabric_const.BLOCK_TYPE_CONFIG
     ) {
-      console.log('Handle channel config block');
+      console.log('>>>> Handle channel config block <<<<');
 
       setTimeout(
         async (client, channel_name, channel_genesis_hash) => {
@@ -589,6 +589,14 @@ class SyncServices {
           endorser_id_bytes
         };
 
+        // fulfills the empty transaction hash with zero
+        let notifytx = true;
+        if (!transaction_row.txhash) {
+          notifytx = false;
+          transaction_row.txhash =
+            '0000000000000000000000000000000000000000000000000000000000000000';
+        }
+
         // insert transaction
         logger.debug(
           'Insert trx#%d data to database <<<<<< %j',
@@ -598,10 +606,11 @@ class SyncServices {
         const res = await this.persistence
           .getCrudService()
           .saveTransaction(transaction_row);
-        if (res) {
+        if (res && notifytx) {
           const txNotify = {
             notify_type: fabric_const.NOTITY_TYPE_TRANSACTION,
             txobj: {
+              channel_name,
               txhash: transaction_row.txhash,
               validation_status: transaction_row.validation_code,
               validation_code: mt_valid_code

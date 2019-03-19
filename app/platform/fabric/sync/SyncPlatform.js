@@ -25,7 +25,7 @@ const fabric_const = require('../utils/FabricConst').fabric.const;
 const explorer_mess = require('../../../common/ExplorerMessage').explorer;
 
 const { Producer, PushConsumer } = require('apache-rocketmq');
-const rmqconfig = require('../../../../configs/rocketmq.json');
+const rmqconfs = require('../../../../configs/rocketmq.json');
 
 const config_path = path.resolve(
   __dirname,
@@ -226,6 +226,15 @@ class SyncPlatform {
     );
 
     try {
+      var rmqconfig = rmqconfs[txobj.channel_name];
+      if (!rmqconfig) {
+        throw new Error(
+          'no available RocketMQ for channel:' + txobj.channel_name
+        );
+      }
+      //console.log("loading rocketmq config for channel: ", txobj.channel_name);
+      //console.log(rmqconfig);
+
       const instname = Math.random()
         .toString(36)
         .substring(7);
