@@ -611,6 +611,7 @@ class SyncServices {
             notify_type: fabric_const.NOTITY_TYPE_TRANSACTION,
             txobj: {
               channel_name,
+              blockhash,
               txhash: transaction_row.txhash,
               validation_status: transaction_row.validation_code,
               validation_code: mt_valid_code

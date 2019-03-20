@@ -248,6 +248,8 @@ class SyncPlatform {
         .start()
         .then(() => {
           const body = JSON.stringify({
+            channel_name: txobj.channel_name,
+            blockhash: txobj.blockhash,
             txhash: txobj.txhash,
             valid_status: txobj.validation_status,
             valid_code: txobj.validation_code
