@@ -14,6 +14,7 @@ services:
     #  - DATABASE_PASSWORD=password
     volumes:
        - ./:/opt/explorer
+       - ./bin/rmqclient:/usr/local/bin/rmqclient
        - /workspace/docker/hyperledger/notary-fabric-network/base/crypto-config:/tmp/crypto
     #  - ./configs/notarynet/crypto:/tmp/crypto
     #  - ./fabric-bin:/fabric-bin

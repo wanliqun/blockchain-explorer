@@ -6,6 +6,7 @@ services:
     image: wanliqun/deepchain_nodejs:1.0
     volumes:
        - ./:/opt/explorer
+       - ./bin/rmqclient:/usr/local/bin/rmqclient
        - /workspace/docker/hyperledger/notary-fabric-network/base/crypto-config:/tmp/crypto
     working_dir: /opt/explorer 
     command: bash -c "npm install && npm build && node sync.js"

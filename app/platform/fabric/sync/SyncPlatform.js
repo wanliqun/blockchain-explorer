@@ -7,6 +7,8 @@ const fs = require('fs-extra');
 const dns = require('dns');
 const net = require('net');
 const util = require('util');
+const exec = require('child_process').exec;
+
 const dnsResolveAsync = util.promisify(dns.resolve);
 
 const SyncService = require('../sync/SyncService');
@@ -287,6 +289,62 @@ class SyncPlatform {
     }
   }
 
+  async execRMQSending(txobj) {
+    console.log(
+      'Produce Rocketmq message for transaction with hash',
+      txobj.txhash
+    );
+    try {
+      var rmqconfig = rmqconfs[txobj.channel_name];
+      if (!rmqconfig) {
+        throw new Error(
+          'no available RocketMQ for channel:' + txobj.channel_name
+        );
+      }
+
+      const instName = Math.random()
+        .toString(36)
+        .substring(7);
+      const nameserver = await this.resolveEndpoint(rmqconfig.nameServer);
+      const topic = rmqconfig.msgTopic;
+      const tags = rmqconfig.msgTag;
+      const groupID = rmqconfig.groupID;
+      const msgBody = JSON.stringify({
+        channel_name: txobj.channel_name,
+        blockhash: txobj.blockhash,
+        txhash: txobj.txhash,
+        valid_status: txobj.validation_status,
+        valid_code: txobj.validation_code
+      });
+
+      console.log(
+        'producer instance name:',
+        instName,
+        ' nameserver:',
+        nameserver
+      );
+      var cmd = util.format(
+        "rmqclient produce -n %s -t %s -s %s -g %s -i %s -b '%s'",
+        nameserver,
+        topic,
+        tags,
+        groupID,
+        instName,
+        msgBody
+      );
+      console.log('running shell command: ', cmd);
+      exec(cmd, (err, stdout, stderr) => {
+        if (!err) {
+          console.log(stdout);
+        } else {
+          console.log(stderr);
+        }
+      });
+    } catch (e) {
+      console.log('Some exception happens:', e);
+    }
+  }
+
   send(notify) {
     if (this.sender) {
       this.sender.send(notify);
@@ -294,7 +352,8 @@ class SyncPlatform {
 
     if (notify.notify_type === fabric_const.NOTITY_TYPE_TRANSACTION) {
       console.log('A new transaction status update notify received.');
-      this.sendRmqTxMessage(notify.txobj);
+      //this.sendRmqTxMessage(notify.txobj);
+      this.execRMQSending(notify.txobj);
     }
   }
 
