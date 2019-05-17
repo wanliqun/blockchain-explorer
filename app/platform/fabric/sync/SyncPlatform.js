@@ -9,6 +9,8 @@ const net = require('net');
 const util = require('util');
 const exec = require('child_process').exec;
 
+const jayson = require('jayson');
+
 const dnsResolveAsync = util.promisify(dns.resolve);
 
 const SyncService = require('../sync/SyncService');
@@ -345,6 +347,45 @@ class SyncPlatform {
     }
   }
 
+  async callRmqJsonRpc(txobj) {
+    console.log(
+      'Calling rmq json rpc service to produce rocketmq message for transaction with hash',
+      txobj.txhash
+    );
+	
+    try {
+      var rmqconfig = rmqconfs[txobj.channel_name];
+      if (!rmqconfig) {
+        throw new Error(
+          'no available RocketMQ for channel:' + txobj.channel_name
+        );
+      }
+      
+      const jsonRpcEndpoint = "http://rmqstub0:8088/rmq";
+      const topic = rmqconfig.msgTopic;
+      const tags = rmqconfig.msgTag;
+      const groupID = rmqconfig.groupID;
+      const msgBody = JSON.stringify({
+        channel_name: txobj.channel_name,
+        blockhash: txobj.blockhash,
+        txhash: txobj.txhash,
+        valid_status: txobj.validation_status,
+        valid_code: txobj.validation_code
+      });
+	  
+      const client = jayson.client.http(jsonRpcEndpoint);
+      client.request('producer_sendSync', [groupID, topic, tags, msgBody], function(err, response) {
+        if(err) throw err;
+        else {
+          console.log("rocketmq json rpc call responsed ok.");
+          console.log(response.result);
+        }
+      });
+    } catch (e) {
+      console.log('Some exception happens:', e);
+    }
+  }
+
   send(notify) {
     if (this.sender) {
       this.sender.send(notify);
@@ -353,7 +394,8 @@ class SyncPlatform {
     if (notify.notify_type === fabric_const.NOTITY_TYPE_TRANSACTION) {
       console.log('A new transaction status update notify received.');
       //this.sendRmqTxMessage(notify.txobj);
-      this.execRMQSending(notify.txobj);
+      //this.execRMQSending(notify.txobj);
+      this.callRmqJsonRpc(notify.txobj);
     }
   }
 
